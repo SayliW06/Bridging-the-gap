@@ -1,13 +1,15 @@
 const { Router } = require("express");
 const { z } = require("zod");
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt")
+const { workerModel } = require("../../db/db");
+const { workerAuth } = require("../../middleware/workerAuth");
 const JWT_SECRET = "workersJWTSecret";
-const { workerModel } = require("../db/db");
 const workerRouter = Router();
 
 workerRouter.post("/signup", async (req, res) => {
   const obj = z.object({
-    email: z.string().min(3).max(100).unique(),
+    email: z.string().min(3).max(100),
     password: z.string().min(3).max(30),
     username: z.string().min(3).max(40),
     description: z.string().max(200),
@@ -72,7 +74,7 @@ workerRouter.post("/signin", async (req, res) => {
     if (passwordStatus) {
       const token = jwt.sign(
         {
-          _id,
+          id: foundedworker._id,
         },
         JWT_SECRET
       );
@@ -92,7 +94,27 @@ workerRouter.post("/signin", async (req, res) => {
   }
 });
 
-workerRouter.post("/", (req, res) => {});
+workerRouter.post("/details", workerAuth, async (req, res) => {
+  const {experience, skill} = req.body
+  const id = req.workerId;
+  try {
+    await workerModel.findOneAndUpdate({
+      _id: id
+    }, {
+    $set: {
+      experience,
+      skill
+    }})
+  } catch (error) {
+    res.json({
+      msg: "something went wrong"
+    })
+  }
+
+  res.json({
+    msg: "done!"
+  })
+});
 
 workerRouter.post("/", (req, res) => {});
 

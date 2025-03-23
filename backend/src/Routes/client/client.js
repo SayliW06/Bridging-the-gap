@@ -1,12 +1,14 @@
 const { Router } = require("express");
 const { z } = require("zod");
 const bcrypt = require("bcrypt");
-const { clientModel } = require("../db/db");
+const jwt = require("jsonwebtoken")
+const { clientModel } = require("../../db/db");
 const clientRouter = Router();
+const {clientAuth} = require("../../middleware/clientAuth")
 
 clientRouter.post("/signup", async (req, res) => {
   const obj = z.object({
-    email: z.string().min(3).max(100).unique(),
+    email: z.string().min(3).max(100),
     password: z.string().min(3).max(30),
     username: z.string().min(3).max(40),
   });
@@ -65,12 +67,14 @@ clientRouter.post("/signin", async (req, res) => {
   if (foundedUser) {
     const passwordStatus = bcrypt.compare(password, foundedUser.password);
 
+    console.log(process.env.JWT_SECRET)
+
     if (passwordStatus) {
       const token = jwt.sign(
         {
-          _id,
+          id: foundedUser._id,
         },
-        JWT_SECRET
+        process.env.JWT_SECRET
       );
 
       res.json({
@@ -88,7 +92,11 @@ clientRouter.post("/signin", async (req, res) => {
   }
 });
 
-clientRouter.post("/", (req, res) => {});
+clientRouter.post("/demo", clientAuth, (req, res) => {
+  res.json({
+    msg: "done!"
+  })
+});
 
 clientRouter.post("/", (req, res) => {});
 

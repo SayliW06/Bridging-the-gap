@@ -19,10 +19,12 @@ const worker = new Schema({
     username: String,
     description: String,
     occupation: String,
+    experience: Number,
+    skills: String
 })
 
-const clientModel = new mongoose.Model("client", client)
-const workerModel = new mongoose.Model("worker", worker)
+const clientModel = new mongoose.model("client", client)
+const workerModel = new mongoose.model("worker", worker)
 
 module.exports = {
     clientModel,
