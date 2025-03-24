@@ -2,7 +2,7 @@ const { Router } = require("express");
 const { z } = require("zod");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt")
-const { workerModel } = require("../../db/db");
+const { workerModel, clientModel } = require("../../db/db");
 const { workerAuth } = require("../../middleware/workerAuth");
 const JWT_SECRET = "workersJWTSecret";
 const workerRouter = Router();
@@ -76,7 +76,7 @@ workerRouter.post("/signin", async (req, res) => {
         {
           id: foundedworker._id,
         },
-        JWT_SECRET
+        process.env.JWT_SECRET
       );
 
       res.json({
@@ -116,7 +116,18 @@ workerRouter.post("/details", workerAuth, async (req, res) => {
   })
 });
 
-workerRouter.post("/", (req, res) => {});
+workerRouter.get("/", async (req, res) => {
+  const clients = await clientModel.find({})
+
+  let client = clients.map(client => ({
+    name: client.username,
+    email: client.email
+  }))
+
+  console.log(client)
+
+  res.json(client)
+});
 
 
 module.exports = {

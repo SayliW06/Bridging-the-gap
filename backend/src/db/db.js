@@ -20,7 +20,7 @@ const worker = new Schema({
     description: String,
     occupation: String,
     experience: Number,
-    skills: String
+    skill: String
 })
 
 const clientModel = new mongoose.model("client", client)
